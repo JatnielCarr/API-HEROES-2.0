@@ -1,94 +1,125 @@
-# API Superhéroes y Mascotas 🦸‍♂️🐕
+# API Heroes & Mascotas 🦸‍♂️🐾
 
-API REST para gestionar superhéroes y sus mascotas, con documentación completa en Swagger.
+API RESTful para gestionar superhéroes, usuarios y mascotas, lista para producción y despliegue en Render con Docker.
 
-## 🚀 Características
+---
 
-- **Gestión de Superhéroes**: CRUD completo para héroes
-- **Gestión de Mascotas**: CRUD completo para mascotas
-- **Sistema de Adopción**: Los héroes pueden adoptar mascotas
-- **Documentación Swagger**: API completamente documentada
-- **Validación de Datos**: Validación de entrada con express-validator
-- **Arquitectura MVC**: Separación clara de responsabilidades
+## 🚀 Características principales
+- **CRUD de Héroes y Mascotas**
+- **Usuarios con autenticación**
+- **Adopción de mascotas por héroes**
+- **Swagger UI para documentación interactiva**
+- **Validación y manejo de errores**
+- **Arquitectura profesional (MVC, servicios, repositorios)**
+- **Base de datos MongoDB Atlas**
+- **Script de seed con Faker (Python) para datos de prueba**
+- **Listo para Docker/Render**
 
-## 📋 Endpoints Disponibles
+---
 
-### Superhéroes
-- `GET /api/heroes` - Listar todos los héroes
-- `POST /api/heroes` - Crear nuevo héroe
-- `GET /api/heroes/city/{city}` - Buscar héroes por ciudad
-- `POST /api/heroes/{id}/enfrentar` - Enfrentar héroe con villano
-- `GET /api/heroes/{id}/pets` - Ver mascotas de un héroe
-- `PUT /api/heroes/{id}` - Actualizar héroe
-- `DELETE /api/heroes/{id}` - Eliminar héroe
+## 📦 Instalación y ejecución local
 
-### Mascotas
-- `GET /api/pets` - Listar todas las mascotas
-- `POST /api/pets` - Crear nueva mascota
-- `GET /api/pets/{id}` - Obtener mascota por ID
-- `PUT /api/pets/{id}` - Actualizar mascota
-- `DELETE /api/pets/{id}` - Eliminar mascota
-- `GET /api/pets/{id}/adoptedBy` - Ver quién adoptó la mascota
-- `POST /api/pets/{id}/adopt` - Adoptar mascota
-- `POST /api/pets/{id}/return` - Devolver mascota
-- `GET /api/pets/adopted` - Listar mascotas adoptadas
-
-## 🛠️ Instalación
-
-1. **Clonar el repositorio**
+1. **Clona el repositorio**
    ```bash
-   git clone <tu-repositorio>
-   cd api-superheroes
+   git clone https://github.com/JatnielCarr/API-HEROES-2.0.git
+   cd API-HEROES-2.0
    ```
-
-2. **Instalar dependencias**
+2. **Instala dependencias**
    ```bash
    npm install
    ```
-
-3. **Ejecutar el servidor**
+3. **Configura la base de datos**
+   - Por defecto, la app usa la siguiente URI de MongoDB Atlas (en `app.js`):
+     ```
+     mongodb+srv://jatnielcarr10:J4flores24@cluster0.fu2p8ok.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0
+     ```
+   - Puedes cambiarla por tu propia URI si lo deseas.
+4. **Ejecuta el servidor**
    ```bash
    npm start
    ```
-   o
+   El servidor corre en el puerto **3001** por defecto.
+
+---
+
+## 🐳 Despliegue en Docker/Render
+
+1. **Build y run local con Docker**
    ```bash
-   node app.js
+   docker build -t api-heroes .
+   docker run -p 3001:3001 api-heroes
    ```
+2. **Para Render**
+   - Sube el repositorio a GitHub.
+   - En Render, crea un nuevo servicio web y selecciona este repo.
+   - Render detectará el `Dockerfile` automáticamente.
+   - Configura la variable de entorno `PORT=3001` si es necesario.
 
-## 📖 Documentación
+---
 
-Una vez que el servidor esté corriendo, puedes acceder a la documentación de Swagger en:
+## 🧪 Poblar la base de datos con datos de ejemplo (opcional)
 
-**http://localhost:3001/api-docs**
+Puedes usar el script de Python para poblar la base de datos con usuarios, héroes y mascotas de ejemplo:
+
+```bash
+pip install -r requirements.txt
+python seed_mongo.py
+```
+
+---
+
+## 📚 Documentación Swagger
+
+Una vez corriendo, accede a:
+- [http://localhost:3001/api-docs](http://localhost:3001/api-docs)
+
+---
 
 ## 🏗️ Estructura del Proyecto
 
 ```
-api-superheroes/
-├── app.js                 # Servidor principal
-├── package.json           # Dependencias y scripts
-├── superheroes.json       # Datos de héroes
-├── superpets.json         # Datos de mascotas
-└── src/
-    ├── controllers/       # Controladores de rutas
-    │   ├── heroController.js
-    │   └── petController.js
-    ├── models/           # Modelos de datos
-    ├── repositories/     # Acceso a datos
-    └── services/         # Lógica de negocio
+API-HEROES-2.0/
+├── app.js                  # Servidor principal y conexión MongoDB
+├── Dockerfile              # Para despliegue en Docker/Render
+├── requirements.txt        # Dependencias para el seed de datos (Python)
+├── seed_mongo.py           # Script para poblar la base de datos con Faker
+├── src/
+│   ├── controllers/        # Lógica de rutas (héroes, mascotas, auth)
+│   ├── middleware/         # Middlewares (auth, validaciones)
+│   ├── models/             # Esquemas de Mongoose
+│   ├── repositories/       # Acceso a datos
+│   ├── services/           # Lógica de negocio
+│   └── utils/              # Utilidades y validaciones
+└── ...
 ```
 
-## 🎯 Tecnologías Utilizadas
+---
 
-- **Node.js** - Runtime de JavaScript
-- **Express.js** - Framework web
-- **Swagger** - Documentación de API
-- **express-validator** - Validación de datos
-- **fs-extra** - Manejo de archivos
+## 🌐 Endpoints principales
 
-## 📝 Ejemplos de Uso
+### Héroes
+- `GET    /api/heroes`           - Listar héroes
+- `POST   /api/heroes`           - Crear héroe
+- `GET    /api/heroes/:id`       - Ver héroe
+- `PUT    /api/heroes/:id`       - Actualizar héroe
+- `DELETE /api/heroes/:id`       - Eliminar héroe
 
-### Crear un Héroe
+### Mascotas
+- `GET    /api/pets`             - Listar mascotas
+- `POST   /api/pets`             - Crear mascota
+- `GET    /api/pets/:id`         - Ver mascota
+- `PUT    /api/pets/:id`         - Actualizar mascota
+- `DELETE /api/pets/:id`         - Eliminar mascota
+- `POST   /api/pets/:id/adopt`   - Adoptar mascota
+- `POST   /api/pets/:id/return`  - Devolver mascota
+
+### Usuarios y Auth
+- `POST   /api/auth/register`     - Registrar usuario
+- `POST   /api/auth/login`        - Login
+
+---
+
+## 📝 Ejemplo de uso (crear héroe)
 ```bash
 curl -X POST http://localhost:3001/api/heroes \
   -H "Content-Type: application/json" \
@@ -96,37 +127,27 @@ curl -X POST http://localhost:3001/api/heroes \
     "name": "Roberto Gómez Bolaños",
     "alias": "Chapulin Colorado",
     "city": "CDMX",
-    "team": "Independiente"
+    "team": "Independiente",
+    "owner": "<user_id>"
   }'
 ```
 
-### Adoptar una Mascota
-```bash
-curl -X POST http://localhost:3001/api/pets/1/adopt \
-  -H "Content-Type: application/json" \
-  -d '{
-    "heroId": 1,
-    "reason": "Necesita compañía",
-    "notes": "Mascota muy cariñosa"
-  }'
-```
+---
 
-## 🤝 Contribuir
+## 🤝 Contribuciones
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+¡Pull requests y sugerencias son bienvenidas! Abre un issue o PR.
+
+---
 
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia ISC.
 
-## 👨‍💻 Autor
+---
 
-**javerage** - [GitHub](https://github.com/javerage)
+**Autor:** Jatniel Carr
 
 ---
 
-¡Disfruta usando la API de Superhéroes y Mascotas! 🦸‍♂️🐕 
+¡Disfruta usando la API de Héroes y Mascotas! 🚀 
