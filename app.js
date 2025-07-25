@@ -40,9 +40,9 @@ const swaggerDefinition = {
   components: {
     securitySchemes: {
       Bearer: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
         description: 'Introduce tu token Bearer aquí. Formato: Bearer <token>'
       }
     }
