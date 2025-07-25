@@ -1,3 +1,9 @@
+/**
+ * @swagger
+ * tags:
+ *   - name: Autenticación
+ *     description: Registro e inicio de sesión de usuarios. El resto de los endpoints requieren autenticación Bearer (token JWT).
+ */
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -10,9 +16,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
  * @swagger
  * /api/auth/register:
  *   post:
- *     tags:
- *       - Autenticación
+ *     tags: [Autenticación]
  *     summary: Registrar un nuevo usuario
+ *     description: Crea una cuenta nueva. Es el único endpoint público junto con login.
  *     requestBody:
  *       required: true
  *       content:
@@ -34,6 +40,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
  *         description: Usuario registrado correctamente
  *       400:
  *         description: Error de validación o usuario ya existe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: El usuario o email ya existe.
  */
 router.post('/register', async (req, res) => {
   try {
@@ -57,9 +71,9 @@ router.post('/register', async (req, res) => {
  * @swagger
  * /api/auth/login:
  *   post:
- *     tags:
- *       - Autenticación
+ *     tags: [Autenticación]
  *     summary: Iniciar sesión de usuario
+ *     description: Devuelve un token JWT. Necesario para acceder a todos los demás endpoints.
  *     requestBody:
  *       required: true
  *       content:
@@ -76,8 +90,29 @@ router.post('/register', async (req, res) => {
  *     responses:
  *       200:
  *         description: Login exitoso, retorna token JWT
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login exitoso
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 user:
+ *                   type: object
  *       401:
  *         description: Credenciales inválidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Usuario o contraseña incorrectos.
  */
 router.post('/login', async (req, res) => {
   try {

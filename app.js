@@ -8,12 +8,13 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import authController from './src/controllers/authController.js';
 import cors from 'cors';
+import itemController from './src/controllers/itemController.js';
 
 dotenv.config();
 
 const app = express();
 
-// Habilitar CORS para todos los orígenes
+// Habilitar CORS para todos los orígenes (ideal para despliegue en Render)
 app.use(cors());
 
 // Configuración Swagger
@@ -59,12 +60,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json());
 
 // Conexión a MongoDB Atlas
-// const MONGO_URI = process.env.MONGO_URI;
-const MONGO_URI = 'mongodb+srv://jatnielcarr10:J4flores24@cluster0.fu2p8ok.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0';
+const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  // useNewUrlParser y useUnifiedTopology ya no son necesarios en Mongoose 6+
 })
 .then(() => console.log('Conectado a MongoDB Atlas'))
 .catch((err) => console.error('Error al conectar a MongoDB:', err));
@@ -73,6 +72,7 @@ app.use('/api', heroController);
 app.use('/api/pets', petController);
 app.use('/api/pet-care', petCareController);
 app.use('/api/auth', authController);
+app.use('/api/items', itemController);
 
 const PORT = 3001;
 app.listen(PORT, () => {
