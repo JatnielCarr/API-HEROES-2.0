@@ -23,7 +23,7 @@ const swaggerDefinition = {
   info: {
     title: 'API Superhéroes y Mascotas',
     version: '1.0.0',
-    description: 'Documentación de la API de superhéroes y mascotas',
+    description: 'Documentación de la API de superhéroes y mascotas.\n\n**IMPORTANTE:** Para acceder a los endpoints protegidos, haz login y pega tu token en el botón Authorize así: `Bearer <token>` (incluyendo la palabra Bearer y un espacio).',
   },
   servers: [
     {
