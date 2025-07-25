@@ -39,11 +39,11 @@ const swaggerDefinition = {
   ],
   components: {
     securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Introduce tu token JWT aquí para autenticarte.'
+      Bearer: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
+        description: 'Introduce tu token Bearer aquí. Formato: Bearer <token>'
       }
     }
   }
