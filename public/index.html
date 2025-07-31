@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+            <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>API HEROES 2.0 - Interfaz Retro</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header con estilo retro -->
+        <header class="game-header">
+            <div class="title-container">
+                <h1 class="main-title">API HEROES 2.0</h1>
+                <div class="subtitle">SUPERHERO GAME INTERFACE</div>
+            </div>
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-label">STATUS:</span>
+                    <span id="connection-status" class="status-value">DISCONNECTED</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">TOKEN:</span>
+                    <span id="token-status" class="status-value">NOT SET</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Panel de autenticación -->
+        <div id="auth-panel" class="game-panel">
+            <h2 class="panel-title">🔐 AUTHENTICATION ZONE</h2>
+            <div class="auth-container">
+                <div class="auth-section">
+                    <h3>📝 REGISTER</h3>
+                    <form id="register-form" class="game-form">
+                        <div class="form-group">
+                            <label for="reg-username">Username:</label>
+                            <input type="text" id="reg-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Password:</label>
+                            <input type="password" id="reg-password" name="password" required>
+                        </div>
+                        <button type="submit" class="game-button">🚀 CREATE ACCOUNT</button>
+                    </form>
+                </div>
+                
+                <div class="auth-section">
+                    <h3>🔑 LOGIN</h3>
+                    <form id="login-form" class="game-form">
+                        <div class="form-group">
+                            <label for="login-username">Username:</label>
+                            <input type="text" id="login-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password:</label>
+                            <input type="password" id="login-password" name="password" required>
+                        </div>
+                        <button type="submit" class="game-button">⚡ LOGIN</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel principal del juego (oculto hasta login) -->
+        <div id="game-panel" class="game-panel hidden">
+            <div class="game-header-controls">
+                <button id="logout-btn" class="logout-button">🚪 LOGOUT</button>
+            </div>
+            <div class="game-tabs">
+                <button class="tab-button active" data-tab="heroes">🦸‍♂️ HEROES</button>
+                <button class="tab-button" data-tab="pets">🐾 PETS</button>
+                <button class="tab-button" data-tab="pet-care">🏠 PET CARE</button>
+                <button class="tab-button" data-tab="items">🎒 ITEMS</button>
+            </div>
+
+            <!-- Tab de Héroes -->
+            <div id="heroes-tab" class="tab-content active">
+                <div class="action-bar">
+                    <button id="get-heroes" class="action-button">📋 GET HEROES</button>
+                    <button id="create-hero-btn" class="action-button">➕ CREATE HERO</button>
+                </div>
+                
+                <div class="heroes-container">
+                    <div class="heroes-list" id="heroes-list">
+                        <!-- Los héroes se cargarán aquí -->
+                    </div>
+                    
+                    <div class="hero-form-container">
+                        <h3>🎭 CREATE NEW HERO</h3>
+                        <form id="create-hero-form" class="game-form">
+                            <div class="form-group">
+                                <label for="hero-name">Real Name:</label>
+                                <input type="text" id="hero-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hero-alias">Hero Alias:</label>
+                                <input type="text" id="hero-alias" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hero-city">City:</label>
+                                <input type="text" id="hero-city">
+                            </div>
+                            <div class="form-group">
+                                <label for="hero-team">Team:</label>
+                                <input type="text" id="hero-team">
+                            </div>
+                            <button type="submit" class="game-button">⚡ CREATE HERO</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab de Mascotas -->
+            <div id="pets-tab" class="tab-content">
+                <div class="action-bar">
+                    <button id="get-pets" class="action-button">📋 GET PETS</button>
+                    <button id="create-pet-btn" class="action-button">➕ CREATE PET</button>
+                </div>
+                
+                <div class="pets-container">
+                    <div class="pets-list" id="pets-list">
+                        <!-- Las mascotas se cargarán aquí -->
+                    </div>
+                    
+                    <div class="pet-form-container">
+                        <h3>🐕 CREATE NEW PET</h3>
+                        <form id="create-pet-form" class="game-form">
+                            <div class="form-group">
+                                <label for="pet-name">Pet Name:</label>
+                                <input type="text" id="pet-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pet-type">Pet Type:</label>
+                                <input type="text" id="pet-type" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pet-superpower">Super Power:</label>
+                                <input type="text" id="pet-superpower" required>
+                            </div>
+                            <button type="submit" class="game-button">⚡ CREATE PET</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab de Cuidado de Mascotas -->
+            <div id="pet-care-tab" class="tab-content">
+                <div class="action-bar">
+                    <button id="get-pets-for-care" class="action-button">🐾 LOAD PETS</button>
+                    <button id="refresh-pet-status" class="action-button">🔄 REFRESH STATUS</button>
+                </div>
+                
+                <div class="pet-care-container">
+                    <div class="pet-selector">
+                        <h3>🎯 SELECT PET</h3>
+                        <select id="pet-selector" class="game-select">
+                            <option value="">Choose a pet...</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Pet Status Display -->
+                    <div id="pet-status-display" class="pet-status-container hidden">
+                        <div class="pet-visual">
+                            <div id="pet-avatar" class="pet-avatar">🐕</div>
+                            <div class="pet-info">
+                                <h3 id="pet-name-display">Pet Name</h3>
+                                <p id="pet-type-display">Type: Unknown</p>
+                                <p id="pet-superpower-display">Power: Unknown</p>
+                            </div>
+                        </div>
+                        
+                        <div class="pet-stats">
+                            <div class="stat-bar">
+                                <label>❤️ Health:</label>
+                                <div class="progress-bar">
+                                    <div id="health-bar" class="progress-fill health-fill"></div>
+                                </div>
+                                <span id="health-value">100%</span>
+                            </div>
+                            
+                            <div class="stat-bar">
+                                <label>😊 Happiness:</label>
+                                <div class="progress-bar">
+                                    <div id="happiness-bar" class="progress-fill happiness-fill"></div>
+                                </div>
+                                <span id="happiness-value">100%</span>
+                            </div>
+                            
+                            <div class="stat-bar">
+                                <label>🍽️ Hunger:</label>
+                                <div class="progress-bar">
+                                    <div id="hunger-bar" class="progress-fill hunger-fill"></div>
+                                </div>
+                                <span id="hunger-value">0%</span>
+                            </div>
+                            
+                            <div class="stat-bar">
+                                <label>🚶 Energy:</label>
+                                <div class="progress-bar">
+                                    <div id="energy-bar" class="progress-fill energy-fill"></div>
+                                </div>
+                                <span id="energy-value">100%</span>
+                            </div>
+                            
+                            <div class="stat-bar">
+                                <label>🛁 Hygiene:</label>
+                                <div class="progress-bar">
+                                    <div id="hygiene-bar" class="progress-fill hygiene-fill"></div>
+                                </div>
+                                <span id="hygiene-value">100%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="pet-status">
+                            <div id="pet-mood" class="mood-indicator">😊 Happy</div>
+                            <div id="pet-condition" class="condition-indicator">✅ Healthy</div>
+                            <div id="pet-diseases" class="diseases-list hidden"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="care-actions">
+                        <div class="care-action">
+                            <h4>🍽️ FEED PET</h4>
+                            <form id="feed-pet-form" class="game-form">
+                                <div class="form-group">
+                                    <label for="food-type">Food Type:</label>
+                                    <select id="food-type" class="game-select">
+                                        <option value="Croquetas">🐕 Croquetas</option>
+                                        <option value="Pollo">🍗 Pollo</option>
+                                        <option value="Pescado">🐟 Pescado</option>
+                                        <option value="Carne">🥩 Carne</option>
+                                        <option value="Vegetales">🥕 Vegetales</option>
+                                        <option value="Dulces">🍪 Dulces</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="game-button">🍖 FEED</button>
+                            </form>
+                        </div>
+                        
+                        <div class="care-action">
+                            <h4>🚶 WALK PET</h4>
+                            <form id="walk-pet-form" class="game-form">
+                                <button type="submit" class="game-button">🚶 WALK</button>
+                            </form>
+                        </div>
+                        
+                        <div class="care-action">
+                            <h4>🎮 PLAY WITH PET</h4>
+                            <form id="play-pet-form" class="game-form">
+                                <button type="submit" class="game-button">🎮 PLAY</button>
+                            </form>
+                        </div>
+                        
+                        <div class="care-action">
+                            <h4>🛁 BATH PET</h4>
+                            <form id="bath-pet-form" class="game-form">
+                                <button type="submit" class="game-button">🛁 BATH</button>
+                            </form>
+                        </div>
+                        
+                        <div class="care-action">
+                            <h4>💊 HEAL PET</h4>
+                            <form id="heal-pet-form" class="game-form">
+                                <div class="form-group">
+                                    <label for="disease-type">Disease to heal:</label>
+                                    <select id="disease-type" class="game-select">
+                                        <option value="Gripe">🤧 Gripe</option>
+                                        <option value="Fiebre">🤒 Fiebre</option>
+                                        <option value="Herida">🩹 Herida</option>
+                                        <option value="Parásitos">🐛 Parásitos</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="game-button">💊 HEAL</button>
+                            </form>
+                        </div>
+                        
+                        <div class="care-action">
+                            <h4>🎨 CUSTOMIZE PET</h4>
+                            <form id="customize-pet-form" class="game-form">
+                                <div class="form-group">
+                                    <label for="customization-type">Customization:</label>
+                                    <select id="customization-type" class="game-select">
+                                        <option value="Sombrero">🎩 Sombrero</option>
+                                        <option value="Collar">🦊 Collar</option>
+                                        <option value="Gafas">👓 Gafas</option>
+                                        <option value="Capa">🦸‍♂️ Capa</option>
+                                        <option value="Lazo">🎀 Lazo</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="game-button">🎨 CUSTOMIZE</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab de Items -->
+            <div id="items-tab" class="tab-content">
+                <div class="action-bar">
+                    <button id="get-items" class="action-button">📋 GET ITEMS</button>
+                    <button id="create-item-btn" class="action-button">➕ CREATE ITEM</button>
+                </div>
+                
+                <div class="items-container">
+                    <div class="items-list" id="items-list">
+                        <!-- Los items se cargarán aquí -->
+                    </div>
+                    
+                    <div class="item-form-container">
+                        <h3>🎒 CREATE NEW ITEM</h3>
+                        <form id="create-item-form" class="game-form">
+                            <div class="form-group">
+                                <label for="item-name">Item Name:</label>
+                                <input type="text" id="item-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="item-description">Description:</label>
+                                <textarea id="item-description" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="item-type">Item Type:</label>
+                                <input type="text" id="item-type" required>
+                            </div>
+                            <button type="submit" class="game-button">⚡ CREATE ITEM</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de resultados -->
+        <div id="results-panel" class="game-panel">
+            <h2 class="panel-title">📊 RESULTS CONSOLE</h2>
+            <div class="console-container">
+                <div class="console-header">
+                    <span class="console-title">API RESPONSE LOG</span>
+                    <button id="clear-console" class="console-button">🗑️ CLEAR</button>
+                </div>
+                <div id="console-output" class="console-output">
+                    <div class="console-message">🚀 Welcome to API HEROES 2.0 Interface!</div>
+                    <div class="console-message">📡 Ready to connect to the API...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

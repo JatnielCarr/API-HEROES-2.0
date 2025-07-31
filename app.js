@@ -68,11 +68,15 @@ mongoose.connect(MONGO_URI, {
 .then(() => console.log('Conectado a MongoDB Atlas'))
 .catch((err) => console.error('Error al conectar a MongoDB:', err));
 
+// Rutas de la API (deben ir antes de los archivos estáticos)
 app.use('/api', heroController);
 app.use('/api/pets', petController);
 app.use('/api/pet-care', petCareController);
 app.use('/api/auth', authController);
 app.use('/api/items', itemController);
+
+// Servir archivos estáticos desde la carpeta public (debe ir después de las rutas de la API)
+app.use(express.static('public'));
 
 const PORT = 3001;
 app.listen(PORT, () => {
