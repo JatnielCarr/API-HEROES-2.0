@@ -91,6 +91,12 @@ function setupEventListeners() {
     // Pets
     elements.getPetsBtn.addEventListener('click', getPets);
     elements.createPetForm.addEventListener('submit', createPet);
+    elements.getAdoptedPetsBtn = document.getElementById('get-adopted-pets');
+    elements.getAdoptedPetsBtn.addEventListener('click', getAdoptedPets);
+    elements.adoptPetForm = document.getElementById('adopt-pet-form');
+    elements.adoptPetForm.addEventListener('submit', adoptPet);
+    elements.returnPetForm = document.getElementById('return-pet-form');
+    elements.returnPetForm.addEventListener('submit', returnPet);
     
     // Pet Care
     elements.getPetsForCareBtn.addEventListener('click', loadPetsForCare);
@@ -229,9 +235,16 @@ async function apiRequest(endpoint, options = {}) {
         ...options
     };
     
+    logToConsole(`🌐 API Request: ${options.method || 'GET'} ${url}`, 'info');
+    if (options.body) {
+        logToConsole(`📦 Request body: ${options.body}`, 'info');
+    }
+    
     try {
         const response = await fetch(url, config);
         const data = await response.json();
+        
+        logToConsole(`📡 Response status: ${response.status}`, 'info');
         
         if (!response.ok) {
             if (response.status === 401) {
@@ -239,9 +252,11 @@ async function apiRequest(endpoint, options = {}) {
                 logout();
                 return null;
             }
+            logToConsole(`❌ API Error: ${data.error || 'Unknown error'}`, 'error');
             throw new Error(data.error || 'API request failed');
         }
         
+        logToConsole(`✅ API Response: ${JSON.stringify(data).substring(0, 200)}...`, 'success');
         return data;
     } catch (error) {
         logToConsole(`❌ API Error: ${error.message}`, 'error');
@@ -264,13 +279,20 @@ async function createHero(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const heroData = {
-        name: formData.get('name') || document.getElementById('hero-name').value,
-        alias: formData.get('alias') || document.getElementById('hero-alias').value,
-        city: formData.get('city') || document.getElementById('hero-city').value,
-        team: formData.get('team') || document.getElementById('hero-team').value
+        name: formData.get('name'),
+        alias: formData.get('alias'),
+        city: formData.get('city') || '',
+        team: formData.get('team') || ''
     };
     
+    // Validar campos requeridos
+    if (!heroData.name || !heroData.alias) {
+        logToConsole('❌ Error: Name and alias are required', 'error');
+        return;
+    }
+    
     logToConsole('🎭 Creating new hero...', 'info');
+    logToConsole(`📝 Hero data: ${JSON.stringify(heroData)}`, 'info');
     
     const hero = await apiRequest('/heroes', {
         method: 'POST',
@@ -321,12 +343,19 @@ async function createPet(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const petData = {
-        name: formData.get('name') || document.getElementById('pet-name').value,
-        type: formData.get('type') || document.getElementById('pet-type').value,
-        superPower: formData.get('superPower') || document.getElementById('pet-superpower').value
+        name: formData.get('name'),
+        type: formData.get('type'),
+        superPower: formData.get('superPower')
     };
     
+    // Validar campos requeridos
+    if (!petData.name || !petData.type || !petData.superPower) {
+        logToConsole('❌ Error: Name, type and super power are required', 'error');
+        return;
+    }
+    
     logToConsole('🐕 Creating new pet...', 'info');
+    logToConsole(`📝 Pet data: ${JSON.stringify(petData)}`, 'info');
     
     const pet = await apiRequest('/pets', {
         method: 'POST',
@@ -355,10 +384,73 @@ function displayPets(pets) {
             <h4>🐾 ${pet.name}</h4>
             <p><strong>Type:</strong> ${pet.type}</p>
             <p><strong>Super Power:</strong> ${pet.superPower}</p>
+            <p><strong>Status:</strong> ${pet.status || 'available'}</p>
             <p><strong>ID:</strong> ${pet._id}</p>
+            ${pet.adoptedBy ? `<p><strong>Adopted by:</strong> ${pet.adoptedBy.alias || pet.adoptedBy}</p>` : ''}
         `;
         elements.petsList.appendChild(petElement);
     });
+}
+
+// Adopt Pet Function
+async function adoptPet(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const adoptData = {
+        heroId: formData.get('heroId'),
+        reason: formData.get('reason'),
+        notes: formData.get('notes') || ''
+    };
+    
+    const petId = formData.get('petId');
+    
+    logToConsole('🤝 Adopting pet...', 'info');
+    
+    const result = await apiRequest(`/pets/${petId}/adopt`, {
+        method: 'POST',
+        body: JSON.stringify(adoptData)
+    });
+    
+    if (result) {
+        logToConsole(`✅ Pet adopted successfully!`, 'success');
+        e.target.reset();
+        getPets(); // Refresh the list
+    }
+}
+
+// Return Pet Function
+async function returnPet(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const returnData = {
+        notes: formData.get('notes') || ''
+    };
+    
+    const petId = formData.get('petId');
+    
+    logToConsole('🔄 Returning pet...', 'info');
+    
+    const result = await apiRequest(`/pets/${petId}/return`, {
+        method: 'POST',
+        body: JSON.stringify(returnData)
+    });
+    
+    if (result) {
+        logToConsole(`✅ Pet returned successfully!`, 'success');
+        e.target.reset();
+        getPets(); // Refresh the list
+    }
+}
+
+// Get Adopted Pets Function
+async function getAdoptedPets() {
+    logToConsole('🏠 Fetching adopted pets...', 'info');
+    
+    const pets = await apiRequest('/pets/adopted');
+    if (pets) {
+        displayPets(pets);
+        logToConsole(`✅ Found ${pets.length} adopted pets`, 'success');
+    }
 }
 
 // Pet Care Functions

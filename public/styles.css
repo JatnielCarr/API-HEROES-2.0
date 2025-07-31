@@ -429,6 +429,39 @@ body::before {
     font-size: 0.8rem;
 }
 
+.adopt-pet-container,
+.return-pet-container {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #4ade80;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.adopt-pet-container {
+    border-color: #fbbf24;
+}
+
+.adopt-pet-container h3 {
+    color: #fbbf24;
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+}
+
+.return-pet-container {
+    border-color: #ef4444;
+}
+
+.return-pet-container h3 {
+    color: #ef4444;
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+}
+
 /* Cuidado de mascotas */
 .pet-care-container {
     display: grid;

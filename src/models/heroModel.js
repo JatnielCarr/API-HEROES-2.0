@@ -17,4 +17,4 @@ heroSchema.method('toJSON', function() {
     return object;
 });
 
-export default mongoose.model('Hero', heroSchema);
+export default mongoose.model('Hero', heroSchema, 'heros');

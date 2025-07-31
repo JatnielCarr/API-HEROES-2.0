@@ -93,10 +93,15 @@ router.post("/heroes",
             return res.status(400).json({ error : errors.array() });
         }
         try {
+            console.log('Creating hero with data:', req.body);
             const { name, alias, city, team } = req.body;
-            const addedHero = await heroService.addHero({ name, alias, city, team, owner: req.user._id });
+            const heroData = { name, alias, city, team, owner: req.user._id };
+            console.log('Hero data to save:', heroData);
+            const addedHero = await heroService.addHero(heroData);
+            console.log('Hero created successfully:', addedHero);
             res.status(201).json(addedHero);
         } catch (error) {
+            console.error('Error creating hero:', error);
             res.status(500).json({ error: error.message });
         }
 });

@@ -93,19 +93,19 @@
                         <form id="create-hero-form" class="game-form">
                             <div class="form-group">
                                 <label for="hero-name">Real Name:</label>
-                                <input type="text" id="hero-name" required>
+                                <input type="text" id="hero-name" name="name" required>
                             </div>
                             <div class="form-group">
                                 <label for="hero-alias">Hero Alias:</label>
-                                <input type="text" id="hero-alias" required>
+                                <input type="text" id="hero-alias" name="alias" required>
                             </div>
                             <div class="form-group">
                                 <label for="hero-city">City:</label>
-                                <input type="text" id="hero-city">
+                                <input type="text" id="hero-city" name="city">
                             </div>
                             <div class="form-group">
                                 <label for="hero-team">Team:</label>
-                                <input type="text" id="hero-team">
+                                <input type="text" id="hero-team" name="team">
                             </div>
                             <button type="submit" class="game-button">⚡ CREATE HERO</button>
                         </form>
@@ -118,6 +118,7 @@
                 <div class="action-bar">
                     <button id="get-pets" class="action-button">📋 GET PETS</button>
                     <button id="create-pet-btn" class="action-button">➕ CREATE PET</button>
+                    <button id="get-adopted-pets" class="action-button">🏠 ADOPTED PETS</button>
                 </div>
                 
                 <div class="pets-container">
@@ -130,17 +131,55 @@
                         <form id="create-pet-form" class="game-form">
                             <div class="form-group">
                                 <label for="pet-name">Pet Name:</label>
-                                <input type="text" id="pet-name" required>
+                                <input type="text" id="pet-name" name="name" required>
                             </div>
                             <div class="form-group">
                                 <label for="pet-type">Pet Type:</label>
-                                <input type="text" id="pet-type" required>
+                                <input type="text" id="pet-type" name="type" required>
                             </div>
                             <div class="form-group">
                                 <label for="pet-superpower">Super Power:</label>
-                                <input type="text" id="pet-superpower" required>
+                                <input type="text" id="pet-superpower" name="superPower" required>
                             </div>
                             <button type="submit" class="game-button">⚡ CREATE PET</button>
+                        </form>
+                    </div>
+                    
+                    <div class="adopt-pet-container">
+                        <h3>🤝 ADOPT PET</h3>
+                        <form id="adopt-pet-form" class="game-form">
+                            <div class="form-group">
+                                <label for="adopt-pet-id">Pet ID:</label>
+                                <input type="text" id="adopt-pet-id" name="petId" placeholder="Enter pet ID" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="adopt-hero-id">Hero ID:</label>
+                                <input type="text" id="adopt-hero-id" name="heroId" placeholder="Enter hero ID" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="adopt-reason">Adoption Reason:</label>
+                                <input type="text" id="adopt-reason" name="reason" placeholder="Why adopt this pet?" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="adopt-notes">Notes:</label>
+                                <textarea id="adopt-notes" name="notes" placeholder="Additional notes"></textarea>
+                            </div>
+                            <button type="submit" class="game-button">🤝 ADOPT PET</button>
+                        </form>
+                    </div>
+                    
+                    <div class="return-pet-container">
+                        <h3>🔄 RETURN PET</h3>
+                        <form id="return-pet-form" class="game-form">
+                            <div class="form-group">
+                                <label for="return-pet-id">Pet ID:</label>
+                                <input type="text" id="return-pet-id" name="petId" placeholder="Enter pet ID to return" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="return-notes">Return Notes:</label>
+                                <textarea id="return-notes" name="notes" placeholder="Why return this pet?"></textarea>
+                            </div>
+                            <button type="submit" class="game-button">🔄 RETURN PET</button>
                         </form>
                     </div>
                 </div>

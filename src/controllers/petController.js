@@ -78,11 +78,15 @@ router.post("/", [
         return res.status(400).json({ error : errors.array() });
     }
     try {
-        console.log('Body recibido:', req.body); // Log para depuración
+        console.log('Creating pet with data:', req.body);
         const { name, type, superPower } = req.body;
-        const newPet = await petService.createPet({ name, type, superPower }, req.user._id);
+        const petData = { name, type, superPower };
+        console.log('Pet data to save:', petData);
+        const newPet = await petService.createPet(petData, req.user._id);
+        console.log('Pet created successfully:', newPet);
         res.status(201).json(newPet.toJSON ? newPet.toJSON() : newPet);
     } catch (error) {
+        console.error('Error creating pet:', error);
         const status = mapErrorToStatus(error);
         res.status(status).json({ error: error.message });
     }
@@ -283,6 +287,29 @@ router.post('/:petId/return', authMiddleware, async (req, res) => {
         const { notes } = req.body || {};
         const result = await petService.returnPet(req.params.petId, notes, req.user._id);
         res.json(result);
+    } catch (error) {
+        const status = mapErrorToStatus(error);
+        res.status(status).json({ error: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /api/pets/adopted:
+ *   get:
+ *     tags:
+ *       - Mascotas
+ *     summary: Obtener mascotas adoptadas por el usuario
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de mascotas adoptadas
+ */
+router.get('/adopted', authMiddleware, async (req, res) => {
+    try {
+        const pets = await petService.getAdoptedPetsByUser(req.user._id);
+        res.json(pets);
     } catch (error) {
         const status = mapErrorToStatus(error);
         res.status(status).json({ error: error.message });
