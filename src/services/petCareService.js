@@ -96,10 +96,10 @@ async function playWithPet(petId, userId) {
     // Penalización por jugar demasiado
     if (countRecentActions(pet, 'play', 10) >= 3) {
         pet.diseases = pet.diseases || [];
-        pet.diseases.push('agotamiento');
-        pet.activityHistory.push({ action: 'sick', disease: 'agotamiento', date: new Date() });
+        pet.diseases.push('cansado');
+        pet.activityHistory.push({ action: 'sick', disease: 'cansado', date: new Date() });
         await pet.save();
-        return { message: '¡Demasiado juego! La mascota se enfermó de agotamiento.', health: pet.health, diseases: pet.diseases };
+        return { message: '¡Demasiado juego! La mascota se cansó.', health: pet.health, diseases: pet.diseases };
     }
     // Personalidad: juguetón pierde felicidad si no juega seguido
     if (pet.personality === 'juguetón') {
@@ -186,12 +186,102 @@ async function healPet(petId, disease, userId) {
     if (pet.health === 0 || pet.status === 'dead') {
         throw new Error('La mascota ha muerto y no puede recibir más cuidados.');
     }
-    pet.diseases = (pet.diseases || []).filter(d => d !== disease);
+    
+    // Si no se especifica enfermedad, curar todas las enfermedades
+    if (!disease || disease === 'all') {
+        const diseasesToHeal = [...(pet.diseases || [])];
+        pet.diseases = [];
+        pet.health = clamp((pet.health ?? 100) + 15, 0, 100);
+        pet.activityHistory = pet.activityHistory || [];
+        pet.activityHistory.push({ action: 'heal', disease: 'all diseases', date: new Date() });
+        await pet.save();
+        return { 
+            message: `Mascota curada de todas las enfermedades: ${diseasesToHeal.join(', ')}`, 
+            health: pet.health, 
+            diseases: pet.diseases 
+        };
+    }
+    
+    // Verificar si la enfermedad existe en la mascota
+    if (!pet.diseases || !pet.diseases.includes(disease)) {
+        throw new Error(`La mascota no tiene la enfermedad "${disease}" para curar.`);
+    }
+    
+    // Curar enfermedad específica
+    pet.diseases = pet.diseases.filter(d => d !== disease);
     pet.health = clamp((pet.health ?? 100) + 15, 0, 100);
     pet.activityHistory = pet.activityHistory || [];
     pet.activityHistory.push({ action: 'heal', disease, date: new Date() });
     await pet.save();
     return { message: `Mascota curada de ${disease}`, health: pet.health, diseases: pet.diseases };
+}
+
+async function healPetWithMedicine(petId, medicine, userId) {
+    const pet = await petRepository.getPetById(petId);
+    if (!pet || pet.owner.toString() !== userId.toString()) throw { status: 403, message: 'No tienes permiso para cuidar esta mascota.' };
+    if (pet.health === 0 || pet.status === 'dead') {
+        throw new Error('La mascota ha muerto y no puede recibir más cuidados.');
+    }
+    
+    // Definir qué enfermedades cura cada medicina
+    const medicineEffects = {
+        'Parazetamol': ['empacho', 'indigestión']
+    };
+    
+    if (!medicineEffects[medicine]) {
+        throw new Error(`Medicina "${medicine}" no reconocida.`);
+    }
+    
+    const curableDiseases = medicineEffects[medicine];
+    const petDiseases = pet.diseases || [];
+    const diseasesToHeal = petDiseases.filter(disease => curableDiseases.includes(disease));
+    
+    if (diseasesToHeal.length === 0) {
+        throw new Error(`La mascota no tiene enfermedades que pueda curar ${medicine}.`);
+    }
+    
+    // Curar las enfermedades que puede curar esta medicina
+    pet.diseases = petDiseases.filter(disease => !curableDiseases.includes(disease));
+    pet.health = clamp((pet.health ?? 100) + 20, 0, 100);
+    pet.activityHistory = pet.activityHistory || [];
+    pet.activityHistory.push({ action: 'heal', medicine, diseases: diseasesToHeal, date: new Date() });
+    await pet.save();
+    
+    return { 
+        message: `${medicine} aplicado. Mascota curada de: ${diseasesToHeal.join(', ')}`, 
+        health: pet.health, 
+        diseases: pet.diseases,
+        medicineUsed: medicine
+    };
+}
+
+async function sleepPet(petId, userId) {
+    const pet = await petRepository.getPetById(petId);
+    if (!pet || pet.owner.toString() !== userId.toString()) throw { status: 403, message: 'No tienes permiso para cuidar esta mascota.' };
+    if (pet.health === 0 || pet.status === 'dead') {
+        throw new Error('La mascota ha muerto y no puede recibir más cuidados.');
+    }
+    
+    // Verificar si la mascota está cansada
+    if (!pet.diseases || !pet.diseases.includes('cansado')) {
+        throw new Error('La mascota no está cansada y no necesita dormir.');
+    }
+    
+    // Curar el cansancio
+    pet.diseases = pet.diseases.filter(d => d !== 'cansado');
+    pet.health = clamp((pet.health ?? 100) + 25, 0, 100);
+    pet.happiness = clamp((pet.happiness ?? 100) + 15, 0, 100);
+    pet.activityHistory = pet.activityHistory || [];
+    pet.activityHistory.push({ action: 'sleep', date: new Date() });
+    pet.lastCare = new Date();
+    await pet.save();
+    
+    return { 
+        message: 'La mascota durmió y se recuperó del cansancio', 
+        health: pet.health, 
+        happiness: pet.happiness,
+        diseases: pet.diseases
+    };
 }
 
 async function getPetStatus(petId, userId) {
@@ -274,6 +364,8 @@ export default {
     bathPet,
     customizePet,
     healPet,
+    healPetWithMedicine,
+    sleepPet,
     getPetStatus,
     makePetSick,
     decayPetStats

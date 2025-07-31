@@ -306,6 +306,12 @@
                                 <div class="form-group">
                                     <label for="disease-type">Disease to heal:</label>
                                     <select id="disease-type" class="game-select">
+                                        <option value="all">🩺 Curar todas las enfermedades</option>
+                                        <option value="indigestión">🤢 Indigestión</option>
+                                        <option value="empacho">🍽️ Empacho</option>
+                                        <option value="cansado">😴 Cansado</option>
+                                        <option value="resfriado">🤧 Resfriado</option>
+                                        <option value="tristeza">😢 Tristeza</option>
                                         <option value="Gripe">🤧 Gripe</option>
                                         <option value="Fiebre">🤒 Fiebre</option>
                                         <option value="Herida">🩹 Herida</option>
@@ -313,6 +319,26 @@
                                     </select>
                                 </div>
                                 <button type="submit" class="game-button">💊 HEAL</button>
+                            </form>
+                        </div>
+                        
+                        <div class="care-action">
+                            <h4>💊 HEAL WITH MEDICINE</h4>
+                            <form id="heal-medicine-form" class="game-form">
+                                <div class="form-group">
+                                    <label for="medicine-type">Medicine:</label>
+                                    <select id="medicine-type" class="game-select">
+                                        <option value="Parazetamol">💊 Parazetamol (Cura empacho e indigestión)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="game-button">💊 APPLY MEDICINE</button>
+                            </form>
+                        </div>
+                        
+                        <div class="care-action">
+                            <h4>😴 SLEEP PET</h4>
+                            <form id="sleep-pet-form" class="game-form">
+                                <button type="submit" class="game-button">😴 SLEEP</button>
                             </form>
                         </div>
                         

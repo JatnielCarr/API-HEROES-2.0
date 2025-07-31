@@ -110,6 +110,10 @@ function setupEventListeners() {
     elements.bathPetForm.addEventListener('submit', bathPet);
     elements.healPetForm = document.getElementById('heal-pet-form');
     elements.healPetForm.addEventListener('submit', healPet);
+    elements.healMedicineForm = document.getElementById('heal-medicine-form');
+    elements.healMedicineForm.addEventListener('submit', healPetWithMedicine);
+    elements.sleepPetForm = document.getElementById('sleep-pet-form');
+    elements.sleepPetForm.addEventListener('submit', sleepPet);
     elements.customizePetForm.addEventListener('submit', customizePet);
     
     // Pet Status Display Elements
@@ -578,7 +582,25 @@ function updatePetCondition(health, diseases) {
     // Show diseases if any
     if (diseases && diseases.length > 0) {
         elements.petDiseases.classList.remove('hidden');
-        elements.petDiseases.innerHTML = `<strong>🤒 Diseases:</strong> ${diseases.join(', ')}`;
+        const diseaseEmojis = {
+            'indigestión': '🤢',
+            'empacho': '🍽️',
+            'agotamiento': '😴',
+            'resfriado': '🤧',
+            'tristeza': '😢',
+            'cansado': '😴',
+            'Gripe': '🤧',
+            'Fiebre': '🤒',
+            'Herida': '🩹',
+            'Parásitos': '🐛'
+        };
+        
+        const diseasesWithEmojis = diseases.map(disease => {
+            const emoji = diseaseEmojis[disease] || '🤒';
+            return `${emoji} ${disease}`;
+        });
+        
+        elements.petDiseases.innerHTML = `<strong>🤒 Diseases:</strong> ${diseasesWithEmojis.join(', ')}`;
     } else {
         elements.petDiseases.classList.add('hidden');
     }
@@ -703,7 +725,8 @@ async function healPet(e) {
         return;
     }
     
-    logToConsole(`💊 Healing pet ${petId} from ${disease}...`, 'info');
+    const diseaseName = disease === 'all' ? 'all diseases' : disease;
+    logToConsole(`💊 Healing pet ${petId} from ${diseaseName}...`, 'info');
     
     const result = await apiRequest(`/pet-care/${petId}/heal`, {
         method: 'POST',
@@ -712,7 +735,90 @@ async function healPet(e) {
     
     if (result) {
         logToConsole('✅ Pet healed successfully!', 'success');
-        logToConsole(`💊 Cured: ${disease}`, 'info');
+        if (result.message) {
+            logToConsole(`💊 ${result.message}`, 'info');
+        }
+        if (result.diseases && result.diseases.length > 0) {
+            logToConsole(`🤒 Remaining diseases: ${result.diseases.join(', ')}`, 'warning');
+        } else {
+            logToConsole('🎉 Pet is now completely healthy!', 'success');
+        }
+        e.target.reset();
+        await refreshPetStatus();
+    }
+}
+
+async function healPetWithMedicine(e) {
+    e.preventDefault();
+    const petId = elements.petSelector.value;
+    const medicine = document.getElementById('medicine-type').value;
+    
+    if (!petId) {
+        logToConsole('❌ Please select a pet first', 'error');
+        return;
+    }
+    
+    if (!medicine) {
+        logToConsole('❌ Please select a medicine', 'error');
+        return;
+    }
+    
+    logToConsole(`💊 Applying ${medicine} to pet ${petId}...`, 'info');
+    
+    const result = await apiRequest(`/pet-care/${petId}/heal-medicine`, {
+        method: 'POST',
+        body: JSON.stringify({ medicine })
+    });
+    
+    if (result) {
+        logToConsole('✅ Medicine applied successfully!', 'success');
+        if (result.message) {
+            logToConsole(`💊 ${result.message}`, 'info');
+        }
+        if (result.medicineUsed) {
+            logToConsole(`💊 Medicine used: ${result.medicineUsed}`, 'info');
+        }
+        if (result.diseases && result.diseases.length > 0) {
+            logToConsole(`🤒 Remaining diseases: ${result.diseases.join(', ')}`, 'warning');
+        } else {
+            logToConsole('🎉 Pet is now completely healthy!', 'success');
+        }
+        e.target.reset();
+        await refreshPetStatus();
+    }
+}
+
+async function sleepPet(e) {
+    e.preventDefault();
+    const petId = elements.petSelector.value;
+    
+    if (!petId) {
+        logToConsole('❌ Please select a pet first', 'error');
+        return;
+    }
+    
+    logToConsole(`😴 Making pet ${petId} sleep...`, 'info');
+    
+    const result = await apiRequest(`/pet-care/${petId}/sleep`, {
+        method: 'POST'
+    });
+    
+    if (result) {
+        logToConsole('✅ Pet slept successfully!', 'success');
+        if (result.message) {
+            logToConsole(`😴 ${result.message}`, 'info');
+        }
+        if (result.health) {
+            logToConsole(`❤️ Health: ${result.health}%`, 'info');
+        }
+        if (result.happiness) {
+            logToConsole(`😊 Happiness: ${result.happiness}%`, 'info');
+        }
+        if (result.diseases && result.diseases.length > 0) {
+            logToConsole(`🤒 Remaining diseases: ${result.diseases.join(', ')}`, 'warning');
+        } else {
+            logToConsole('🎉 Pet is now completely healthy!', 'success');
+        }
         e.target.reset();
         await refreshPetStatus();
     }

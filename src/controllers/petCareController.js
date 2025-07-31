@@ -343,4 +343,76 @@ router.get('/:petId/status', authMiddleware, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/pet-care/{petId}/heal-medicine:
+ *   post:
+ *     tags:
+ *       - Cuidado de Mascota
+ *     summary: Curar una mascota con medicina específica
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: petId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - medicine
+ *             properties:
+ *               medicine:
+ *                 type: string
+ *                 description: Medicina a aplicar
+ *                 example: "Parazetamol"
+ *     responses:
+ *       200:
+ *         description: Mascota curada con medicina
+ */
+router.post('/:petId/heal-medicine', authMiddleware, async (req, res) => {
+    try {
+        const { medicine } = req.body;
+        const result = await petCareService.healPetWithMedicine(req.params.petId, medicine, req.user._id);
+        res.json(result);
+    } catch (error) {
+        if (error.status === 403) return res.status(403).json({ error: error.message });
+        res.status(400).json({ error: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /api/pet-care/{petId}/sleep:
+ *   post:
+ *     tags:
+ *       - Cuidado de Mascota
+ *     summary: Hacer dormir a una mascota cansada
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: petId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Mascota durmió y se recuperó
+ */
+router.post('/:petId/sleep', authMiddleware, async (req, res) => {
+    try {
+        const result = await petCareService.sleepPet(req.params.petId, req.user._id);
+        res.json(result);
+    } catch (error) {
+        if (error.status === 403) return res.status(403).json({ error: error.message });
+        res.status(400).json({ error: error.message });
+    }
+});
+
 export default router; 

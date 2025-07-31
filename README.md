@@ -24,6 +24,17 @@ export default mongoose.model('Hero', heroSchema, 'heros');
 - ✅ Historial de adopciones
 - ✅ Validación de permisos y estados
 
+### ✅ Sistema de Curación Mejorado
+**Implementado**: Sistema inteligente de curación de mascotas.
+
+**Características**:
+- ✅ Curar enfermedades específicas (indigestión, empacho, agotamiento, etc.)
+- ✅ Curar todas las enfermedades de una vez
+- ✅ Validación de enfermedades existentes
+- ✅ Mensajes informativos sobre el estado de curación
+- ✅ Interfaz mejorada con emojis para cada enfermedad
+- ✅ Sistema de enfermedades realistas (indigestión por sobrealimentación, etc.)
+
 ## 🚀 Configuración de la Base de Datos
 
 1. Crea un archivo `.env` en la raíz del proyecto (si no existe) y agrega:
@@ -81,6 +92,21 @@ npm start
    - Ingresa el ID de la mascota
    - Opcional: agrega notas
 3. Haz clic en "Return Pet"
+
+### Curar una Mascota
+1. Ve a la pestaña "Pet Care"
+2. Selecciona una mascota del dropdown
+3. En la sección "💊 HEAL PET":
+   - Selecciona la enfermedad a curar (o "Curar todas las enfermedades")
+   - Haz clic en "💊 HEAL"
+4. Verás el resultado en la consola
+
+**Enfermedades disponibles**:
+- 🤢 Indigestión (por sobrealimentación)
+- 🍽️ Empacho (por comer demasiado rápido)
+- 😴 Agotamiento (por jugar demasiado)
+- 🤧 Resfriado (por bañarse mucho)
+- 😢 Tristeza (por abandono prolongado)
 
 ## 🔧 Verificación de la Base de Datos
 
