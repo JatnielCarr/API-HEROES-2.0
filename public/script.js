@@ -2,6 +2,11 @@
 const API_BASE_URL = '/api';
 let authToken = localStorage.getItem('authToken') || null;
 
+// Pet health management
+let petHealthTimer = null;
+let currentPetId = null;
+let currentPetHealth = 100;
+
 // Elementos del DOM
 const elements = {
     // Status
@@ -37,10 +42,7 @@ const elements = {
     walkPetForm: document.getElementById('walk-pet-form'),
     customizePetForm: document.getElementById('customize-pet-form'),
     
-    // Items
-    getItemsBtn: document.getElementById('get-items'),
-    createItemForm: document.getElementById('create-item-form'),
-    itemsList: document.getElementById('items-list'),
+
     
     // Console
     consoleOutput: document.getElementById('console-output'),
@@ -136,9 +138,7 @@ function setupEventListeners() {
     elements.petCondition = document.getElementById('pet-condition');
     elements.petDiseases = document.getElementById('pet-diseases');
     
-    // Items
-    elements.getItemsBtn.addEventListener('click', getItems);
-    elements.createItemForm.addEventListener('submit', createItem);
+
     
     // Console
     elements.clearConsoleBtn.addEventListener('click', clearConsole);
@@ -458,6 +458,43 @@ async function getAdoptedPets() {
 }
 
 // Pet Care Functions
+
+// Pet health decrease timer
+function startPetHealthTimer(petId) {
+    // Clear any existing timer
+    if (petHealthTimer) {
+        clearInterval(petHealthTimer);
+    }
+    
+    currentPetId = petId;
+    currentPetHealth = 100;
+    
+    // Start timer to decrease health every 5 seconds
+    petHealthTimer = setInterval(async () => {
+        if (currentPetHealth > 10) { // Never go below 10%
+            currentPetHealth -= 2; // Decrease by 2% every 5 seconds
+            currentPetHealth = Math.max(10, currentPetHealth); // Ensure minimum 10%
+            
+            // Update the health bar if this pet is currently selected
+            if (elements.petSelector.value === currentPetId) {
+                updateStatBar(elements.healthBar, elements.healthValue, currentPetHealth, 'health');
+                logToConsole(`❤️ Pet health decreased to ${currentPetHealth}%`, 'warning');
+            }
+        }
+    }, 5000); // 5 seconds
+    
+    logToConsole(`⏰ Started health timer for pet ${petId}`, 'info');
+}
+
+function stopPetHealthTimer() {
+    if (petHealthTimer) {
+        clearInterval(petHealthTimer);
+        petHealthTimer = null;
+        currentPetId = null;
+        logToConsole('⏰ Stopped pet health timer', 'info');
+    }
+}
+
 async function loadPetsForCare() {
     logToConsole('🏠 Loading pets for care...', 'info');
     
@@ -482,8 +519,10 @@ function populatePetSelector(pets) {
     elements.petSelector.addEventListener('change', function() {
         if (this.value) {
             loadPetStatus(this.value);
+            startPetHealthTimer(this.value); // Start health timer for selected pet
         } else {
             hidePetStatus();
+            stopPetHealthTimer(); // Stop timer when no pet is selected
         }
     });
 }
@@ -510,6 +549,31 @@ function displayPetStatus(pet) {
     elements.petNameDisplay.textContent = pet.name;
     elements.petTypeDisplay.textContent = `Type: ${pet.type}`;
     elements.petSuperpowerDisplay.textContent = `Power: ${pet.superPower || 'None'}`;
+    
+    // Add health timer indicator
+    const healthTimerIndicator = document.createElement('div');
+    healthTimerIndicator.id = 'health-timer-indicator';
+    healthTimerIndicator.className = 'health-timer-indicator';
+    healthTimerIndicator.innerHTML = '⏰ Health Timer Active';
+    healthTimerIndicator.style.cssText = `
+        background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        margin: 5px 0;
+        text-align: center;
+        animation: pulse 2s infinite;
+    `;
+    
+    // Remove existing indicator if present
+    const existingIndicator = document.getElementById('health-timer-indicator');
+    if (existingIndicator) {
+        existingIndicator.remove();
+    }
+    
+    // Add the indicator to the pet status display
+    elements.petStatusDisplay.insertBefore(healthTimerIndicator, elements.petStatusDisplay.firstChild);
     
     // Update avatar based on pet type
     const avatarMap = {
@@ -608,6 +672,12 @@ function updatePetCondition(health, diseases) {
 
 function hidePetStatus() {
     elements.petStatusDisplay.classList.add('hidden');
+    
+    // Remove health timer indicator
+    const healthTimerIndicator = document.getElementById('health-timer-indicator');
+    if (healthTimerIndicator) {
+        healthTimerIndicator.remove();
+    }
 }
 
 async function refreshPetStatus() {
@@ -639,6 +709,14 @@ async function feedPet(e) {
     if (result) {
         logToConsole('✅ Pet fed successfully!', 'success');
         logToConsole(`🍖 Food: ${food}`, 'info');
+        
+        // Reset health timer and restore health to 100%
+        if (currentPetId === petId) {
+            currentPetHealth = 100;
+            updateStatBar(elements.healthBar, elements.healthValue, currentPetHealth, 'health');
+            logToConsole('❤️ Pet health restored to 100%!', 'success');
+        }
+        
         e.target.reset();
         await refreshPetStatus();
     }
@@ -662,6 +740,14 @@ async function walkPet(e) {
     if (result) {
         logToConsole('✅ Pet walked successfully!', 'success');
         logToConsole('🚶 Pet is now more energetic!', 'info');
+        
+        // Restore some health when walking
+        if (currentPetId === petId) {
+            currentPetHealth = Math.min(100, currentPetHealth + 15);
+            updateStatBar(elements.healthBar, elements.healthValue, currentPetHealth, 'health');
+            logToConsole(`❤️ Pet health increased to ${currentPetHealth}%!`, 'success');
+        }
+        
         await refreshPetStatus();
     }
 }
@@ -684,6 +770,14 @@ async function playPet(e) {
     if (result) {
         logToConsole('✅ Played with pet successfully!', 'success');
         logToConsole('🎮 Pet is now happier!', 'info');
+        
+        // Restore some health when playing
+        if (currentPetId === petId) {
+            currentPetHealth = Math.min(100, currentPetHealth + 10);
+            updateStatBar(elements.healthBar, elements.healthValue, currentPetHealth, 'health');
+            logToConsole(`❤️ Pet health increased to ${currentPetHealth}%!`, 'success');
+        }
+        
         await refreshPetStatus();
     }
 }
@@ -706,6 +800,14 @@ async function bathPet(e) {
     if (result) {
         logToConsole('✅ Pet bathed successfully!', 'success');
         logToConsole('🛁 Pet is now clean and healthy!', 'info');
+        
+        // Restore some health when bathing
+        if (currentPetId === petId) {
+            currentPetHealth = Math.min(100, currentPetHealth + 20);
+            updateStatBar(elements.healthBar, elements.healthValue, currentPetHealth, 'health');
+            logToConsole(`❤️ Pet health increased to ${currentPetHealth}%!`, 'success');
+        }
+        
         await refreshPetStatus();
     }
 }
@@ -819,6 +921,14 @@ async function sleepPet(e) {
         } else {
             logToConsole('🎉 Pet is now completely healthy!', 'success');
         }
+        
+        // Restore significant health when sleeping
+        if (currentPetId === petId) {
+            currentPetHealth = Math.min(100, currentPetHealth + 30);
+            updateStatBar(elements.healthBar, elements.healthValue, currentPetHealth, 'health');
+            logToConsole(`❤️ Pet health increased to ${currentPetHealth}%!`, 'success');
+        }
+        
         e.target.reset();
         await refreshPetStatus();
     }
@@ -854,60 +964,7 @@ async function customizePet(e) {
     }
 }
 
-// Items Functions
-async function getItems() {
-    logToConsole('🎒 Fetching items...', 'info');
-    
-    const items = await apiRequest('/items');
-    if (items) {
-        displayItems(items);
-        logToConsole(`✅ Found ${items.length} items`, 'success');
-    }
-}
 
-async function createItem(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const itemData = {
-        name: formData.get('name') || document.getElementById('item-name').value,
-        description: formData.get('description') || document.getElementById('item-description').value,
-        type: formData.get('type') || document.getElementById('item-type').value
-    };
-    
-    logToConsole('🎒 Creating new item...', 'info');
-    
-    const item = await apiRequest('/items', {
-        method: 'POST',
-        body: JSON.stringify(itemData)
-    });
-    
-    if (item) {
-        logToConsole(`✅ Item created: ${item.name}`, 'success');
-        e.target.reset();
-        getItems(); // Refresh the list
-    }
-}
-
-function displayItems(items) {
-    elements.itemsList.innerHTML = '';
-    
-    if (items.length === 0) {
-        elements.itemsList.innerHTML = '<div class="console-message">No items found</div>';
-        return;
-    }
-    
-    items.forEach(item => {
-        const itemElement = document.createElement('div');
-        itemElement.className = 'item-item';
-        itemElement.innerHTML = `
-            <h4>🎒 ${item.name}</h4>
-            <p><strong>Description:</strong> ${item.description}</p>
-            <p><strong>Type:</strong> ${item.type}</p>
-            <p><strong>ID:</strong> ${item._id}</p>
-        `;
-        elements.itemsList.appendChild(itemElement);
-    });
-}
 
 // UI Functions
 function switchTab(tabName) {
@@ -949,6 +1006,7 @@ function updateStatus() {
 function logout() {
     authToken = null;
     localStorage.removeItem('authToken');
+    stopPetHealthTimer(); // Stop pet health timer on logout
     updateStatus();
     showAuthPanel();
     logToConsole('🔓 Logged out successfully', 'warning');
@@ -1017,10 +1075,6 @@ document.addEventListener('keydown', function(e) {
             case '3':
                 e.preventDefault();
                 switchTab('pet-care');
-                break;
-            case '4':
-                e.preventDefault();
-                switchTab('items');
                 break;
             case 'l':
                 e.preventDefault();

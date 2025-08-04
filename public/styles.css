@@ -875,4 +875,16 @@ body::before {
     outline: none;
     border-color: #ffd700;
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Health Timer Animation */
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+    }
+    50% { 
+        transform: scale(1.05); 
+        box-shadow: 0 0 15px rgba(255, 107, 107, 0.8);
+    }
 } 
